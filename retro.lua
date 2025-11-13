@@ -1,3 +1,4 @@
+-- Combined LocalScript (fixed & merged)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
@@ -485,7 +486,7 @@ end
 local player = game:GetService("Players").LocalPlayer
 local runService = game:GetService("RunService")
 
-local function setup(char)
+local function setupCornerClip(char)
 	local torso = char:WaitForChild("Torso")
 	local humanoid = char:WaitForChild("Humanoid")
 
@@ -522,23 +523,23 @@ local function setup(char)
 end
 
 if player.Character then
-	setup(player.Character)
+	setupCornerClip(player.Character)
 end
-player.CharacterAdded:Connect(setup)
+player.CharacterAdded:Connect(setupCornerClip)
 
 -- CustomClimbing.lua (StarterPlayerScripts)
 -- climb system that works only on TrussParts, and keeps player stuck midair if idle
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+local Players2 = game:GetService("Players")
+local RunService2 = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
 
-local lp = Players.LocalPlayer
-local char = lp.Character or lp.CharacterAdded:Wait()
-local hum = char:WaitForChild("Humanoid")
-local hrp = char:WaitForChild("HumanoidRootPart")
+local lp2 = Players2.LocalPlayer
+local char2 = lp2.Character or lp2.CharacterAdded:Wait()
+local hum2 = char2:WaitForChild("Humanoid")
+local hrp2 = char2:WaitForChild("HumanoidRootPart")
 
-hum:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+hum2:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
 
 local bodyVel = Instance.new("BodyVelocity")
 bodyVel.MaxForce = Vector3.new(25000, 25000, 25000)
@@ -553,25 +554,25 @@ local climbing = false
 local climbConn
 
 local function onHeartbeat()
-	if not char or not hrp or not hum then return end
+	if not char2 or not hrp2 or not hum2 then return end
 
 	local rayParams = RaycastParams.new()
-	rayParams.FilterDescendantsInstances = {char}
+	rayParams.FilterDescendantsInstances = {char2}
 	rayParams.FilterType = Enum.RaycastFilterType.Exclude
 
-	local origin = hrp.Position
-	local dir = hrp.CFrame.LookVector * 2.5
+	local origin = hrp2.Position
+	local dir = hrp2.CFrame.LookVector * 2.5
 	local result = workspace:Raycast(origin, dir, rayParams)
 
 	if result and result.Instance and result.Instance:IsA("TrussPart") then
 		if not climbing then
 			climbing = true
 			_G.isClimbing = true
-			bodyVel.Parent = hrp
+			bodyVel.Parent = hrp2
 		end
 
 		-- if moving, go up; if not, stay still midair
-		if hum.MoveDirection.Magnitude > 0 then
+		if hum2.MoveDirection.Magnitude > 0 then
 			bodyVel.Velocity = Vector3.new(0, 11.2, 0)
 		else
 			bodyVel.Velocity = Vector3.zero
@@ -586,34 +587,34 @@ local function onHeartbeat()
 	end
 end
 
-hum:GetPropertyChangedSignal("MoveDirection"):Connect(function()
-	if hum.MoveDirection.Magnitude > 0 then
+hum2:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+	if hum2.MoveDirection.Magnitude > 0 then
 		if not climbConn then
-			climbConn = RunService.Heartbeat:Connect(onHeartbeat)
+			climbConn = RunService2.Heartbeat:Connect(onHeartbeat)
 		end
 	else
 		if not climbConn then
-			climbConn = RunService.Heartbeat:Connect(onHeartbeat)
+			climbConn = RunService2.Heartbeat:Connect(onHeartbeat)
 		end
 	end
 end)
 
-lp.CharacterAdded:Connect(function(newChar)
-	char = newChar
-	hum = char:WaitForChild("Humanoid")
-	hrp = char:WaitForChild("HumanoidRootPart")
-	hum:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+lp2.CharacterAdded:Connect(function(newChar)
+	char2 = newChar
+	hum2 = char2:WaitForChild("Humanoid")
+	hrp2 = char2:WaitForChild("HumanoidRootPart")
+	hum2:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
 end)
 
 -- Overhead GUI for all players (custom bars + hides default healthbars)
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+local Players3 = game:GetService("Players")
+local RunService3 = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 
 -- hide Roblox's default name + health display
 pcall(function()
-	Players.PlayerAdded:Connect(function(p)
+	Players3.PlayerAdded:Connect(function(p)
 		p.CharacterAppearanceLoaded:Connect(function()
 			pcall(function()
 				p:SetAttribute("DisplayNameVisible", false)
@@ -684,7 +685,7 @@ local function applyOverheadToPlayer(player)
 		BillboardGui.Adornee = head
 		BillboardGui.Parent = head
 
-		RunService.RenderStepped:Connect(function()
+		RunService3.RenderStepped:Connect(function()
 			if hum and hum.Parent then
 				local ratio = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
 				GreenBar.Size = UDim2.new(ratio, 0, 1, 0)
@@ -692,4 +693,11 @@ local function applyOverheadToPlayer(player)
 		end)
 	end
 
-	tas
+	apply()
+	player.CharacterAdded:Connect(apply)
+end
+
+Players3.PlayerAdded:Connect(applyOverheadToPlayer)
+for _, p in ipairs(Players3:GetPlayers()) do
+	applyOverheadToPlayer(p)
+end
